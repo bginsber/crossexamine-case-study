@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ben Ginsberg — Frontier GenAI Engineering Portfolio for Deloitte</title>
+<meta name="description" content="Ben Ginsberg's Deloitte-focused Frontier GenAI engineering portfolio: production AI SaaS, client-facing GenAI consulting, legal-domain AI systems, and enterprise-ready delivery patterns." />
+<meta property="og:title" content="Ben Ginsberg — Frontier GenAI Engineering Portfolio" />
+<meta property="og:description" content="Production GenAI engineering, client-facing consulting, and regulated-domain AI systems aligned to Forward Deployed Engineering." />
+<meta property="og:type" content="website" />
+<style>
+:root {
+  --paper: #fbfaf7;
+  --ink: #172033;
+  --muted: #5c6678;
+  --quiet: #7a8494;
+  --line: #d9dee7;
+  --panel: #ffffff;
+  --panel-2: #f2f5f8;
+  --accent: #0f5e8c;
+  --accent-dark: #0a405f;
+  --gold: #b9822c;
+  --ok: #1f7a4d;
+  --shadow: 0 18px 45px rgba(23, 32, 51, .08);
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: Avenir Next, Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --max: 1080px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(15,94,140,.035) 1px, transparent 1px) 0 0 / 42px 42px,
+    linear-gradient(180deg, #fff 0, var(--paper) 360px, var(--paper) 100%);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration-thickness: .08em; text-underline-offset: .18em; }
+a:hover { color: var(--accent-dark); }
+.container { width: min(var(--max), calc(100% - 40px)); margin: 0 auto; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: #fff; padding: 8px 12px; z-index: 20; }
+.skip:focus { left: 8px; }
+
+.header {
+  border-bottom: 1px solid var(--line);
+  background: rgba(251,250,247,.9);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.brand { font-weight: 700; letter-spacing: .01em; color: var(--ink); text-decoration: none; }
+.navlinks { display: flex; gap: 20px; font-size: 14px; }
+.navlinks a { color: var(--muted); text-decoration: none; }
+.navlinks a:hover { color: var(--ink); }
+
+.hero { padding: 72px 0 42px; }
+.kicker {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(40px, 6vw, 68px);
+  line-height: .98;
+  letter-spacing: -.035em;
+  margin: 0 0 22px;
+  max-width: 900px;
+}
+.lede {
+  color: #2e394e;
+  font-size: clamp(18px, 2vw, 22px);
+  line-height: 1.45;
+  max-width: 840px;
+  margin: 0;
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 9px 14px;
+  color: var(--accent);
+  background: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+}
+.button.primary { background: var(--accent); color: #fff; }
+.button:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(15,94,140,.14); }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 38px 0 6px;
+}
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--accent);
+  box-shadow: 0 8px 26px rgba(23,32,51,.045);
+  padding: 18px 16px 16px;
+}
+.metric strong { display: block; font-family: var(--serif); font-size: 30px; line-height: 1; letter-spacing: -.03em; }
+.metric span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; margin-top: 8px; }
+
+main section { padding: 42px 0; }
+.section-head { display: grid; grid-template-columns: 190px 1fr; gap: 34px; align-items: start; margin-bottom: 22px; }
+.eyebrow { color: var(--gold); font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; padding-top: 9px; }
+h2 { font-family: var(--serif); font-size: clamp(28px, 3vw, 40px); line-height: 1.1; letter-spacing: -.025em; margin: 0; }
+h3 { margin: 0 0 8px; font-size: 18px; line-height: 1.25; }
+p { margin: 0 0 14px; color: #334057; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+.two-col { display: grid; grid-template-columns: 1.05fr .95fr; gap: 20px; }
+.fit-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.fit-list li { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; color: #334057; }
+.fit-list strong { color: var(--ink); }
+
+.case-study {
+  display: grid;
+  grid-template-columns: .8fr 1.2fr;
+  gap: 24px;
+  align-items: stretch;
+}
+.case-card {
+  background: #0f1d2e;
+  color: #eef4f8;
+  padding: 26px;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.case-card:after {
+  content: "";
+  position: absolute;
+  inset: auto -50px -70px auto;
+  width: 180px;
+  height: 180px;
+  border: 1px solid rgba(255,255,255,.18);
+  transform: rotate(20deg);
+}
+.case-card h3 { color: #fff; font-family: var(--serif); font-size: 28px; }
+.case-card p { color: #c9d4df; }
+.case-card a { color: #b9e4ff; }
+.bullets { margin: 0; padding-left: 18px; color: #334057; }
+.bullets li { margin-bottom: 8px; }
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.project {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 18px;
+  min-height: 210px;
+}
+.project .tag { color: var(--accent); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; margin-bottom: 10px; }
+.project p { font-size: 14px; color: var(--muted); }
+
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+.stack span {
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #334057;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.quote {
+  border-left: 4px solid var(--gold);
+  padding-left: 18px;
+  margin: 18px 0 0;
+  color: #26344a;
+  font-size: 18px;
+  line-height: 1.45;
+}
+.footer {
+  border-top: 1px solid var(--line);
+  margin-top: 36px;
+  padding: 34px 0 52px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.footer .container { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  .section-head, .two-col, .case-study { grid-template-columns: 1fr; gap: 16px; }
+  .eyebrow { padding-top: 0; }
+  .project-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .container { width: min(100% - 28px, var(--max)); }
+  .nav { align-items: flex-start; flex-direction: column; padding: 13px 0; gap: 7px; }
+  .navlinks { flex-wrap: wrap; gap: 12px; font-size: 13px; }
+  .hero { padding-top: 48px; }
+  .metrics, .project-grid { grid-template-columns: 1fr; }
+  .panel { padding: 20px; }
+}
+@media print {
+  .header, .hero-actions { display: none; }
+  body { background: #fff; color: #000; font-size: 12px; }
+  .container { width: 100%; }
+  main section { padding: 18px 0; }
+  .panel, .project, .case-card { box-shadow: none; border-color: #bbb; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="header">
+  <div class="container nav">
+    <a class="brand" href="#top">Ben Ginsberg</a>
+    <nav class="navlinks" aria-label="Page sections">
+      <a href="#fit">FDE fit</a>
+      <a href="#case-study">Case study</a>
+      <a href="#consulting">Consulting</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero container" id="top">
+    <div class="kicker">Technical Portfolio · Frontier GenAI · Deloitte FDE</div>
+    <h1>Ben Ginsberg — Frontier GenAI Engineering Portfolio</h1>
+    <p class="lede">AI-native software engineer building production GenAI systems for regulated workflows: rapid prototypes, client-facing delivery, enterprise controls, and defensible human-in-the-loop AI.</p>
+    <div class="hero-actions">
+      <a class="button primary" href="mailto:beginsber@gmail.com?subject=Deloitte%20Frontier%20GenAI%20FDE%20Application">Email Ben</a>
+      <a class="button" href="../">View CrossExamine case study</a>
+    </div>
+    <div class="metrics" aria-label="Resume-backed highlights">
+      <div class="metric"><strong>82</strong><span>FastAPI endpoints</span></div>
+      <div class="metric"><strong>2,256</strong><span>Tests shipped</span></div>
+      <div class="metric"><strong>9 weeks</strong><span>Solo SaaS build</span></div>
+      <div class="metric"><strong>0.976</strong><span>Privilege recall</span></div>
+    </div>
+  </section>
+
+  <section class="container" id="fit">
+    <div class="section-head">
+      <div class="eyebrow">FDE fit</div>
+      <h2>Client problems translated into working GenAI systems.</h2>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <p>Deloitte’s Forward Deployed Engineer role calls for someone who can embed with clients, identify valuable GenAI use cases, prototype quickly, and turn successful experiments into maintainable enterprise software. That is the shape of my current work.</p>
+        <p>I combine hands-on AI engineering with legal-domain judgment and client-facing experience in regulated workflows. My strongest evidence is CrossExamine.AI, a production legal AI SaaS I built end-to-end, plus independent GenAI consulting through Upwork where I scope ambiguous business problems and turn them into working AI workflows.</p>
+      </div>
+      <div class="panel">
+        <ul class="fit-list">
+          <li><strong>Client engagement:</strong> discovery, requirements clarification, stakeholder demos, and tradeoff communication.</li>
+          <li><strong>Solution engineering:</strong> LLM workflows, tool use, structured outputs, API integrations, and human review controls.</li>
+          <li><strong>Enterprise readiness:</strong> testing, CI/CD, logging, documentation, audit trails, SSO/SAML, and maintainable architecture.</li>
+          <li><strong>Model judgment:</strong> quality, latency, cost, explainability, defensibility, and model-risk tradeoffs.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="container" id="case-study">
+    <div class="section-head">
+      <div class="eyebrow">Production build</div>
+      <h2>CrossExamine.AI: defensibility-first legal AI SaaS.</h2>
+    </div>
+    <div class="case-study">
+      <div class="case-card">
+        <h3>Production AI, built solo.</h3>
+        <p>CrossExamine.AI is a multi-tenant legal AI platform for privilege review, designed around traceability, auditability, and lawyer-readable evidence.</p>
+        <p><a href="../">Read the full technical case study →</a></p>
+      </div>
+      <div class="panel">
+        <ul class="bullets">
+          <li>Shipped a full-stack platform with FastAPI, Next.js/React, PostgreSQL, Redis, Docker, Alembic, and GitHub Actions CI/CD.</li>
+          <li>Implemented multi-tenant isolation, WorkOS SSO/SAML, JWT auth, Stripe billing, tier-gated access, and Sentry monitoring.</li>
+          <li>Built a 3-stage privilege detection pipeline using Sparse Autoencoders on Llama-3.1-8B hidden states with GPU extraction via Modal.</li>
+          <li>Integrated Claude Agent SDK for review suggestions with a quality guard that validates quoted text against source documents.</li>
+          <li>Designed human feedback loops, HMAC-signed audit trails, privilege log drafting, Relativity import/export, and defensibility packages.</li>
+          <li>Maintained production discipline through 2,256 pytest/Vitest tests, Ruff, mypy, migration smoke tests, and path-based CI filtering.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="container" id="consulting">
+    <div class="section-head">
+      <div class="eyebrow">Consulting</div>
+      <h2>Independent GenAI consulting through Upwork.</h2>
+    </div>
+    <div class="panel">
+      <p>My Upwork work is best understood as client-facing GenAI consulting. Clients usually bring an operational pain point rather than a technical specification. I help clarify the workflow, identify where LLMs can create leverage, prototype the first useful version, integrate with existing tools or data, and iterate based on stakeholder feedback.</p>
+      <p class="quote">The pattern is the same one Deloitte describes for FDE delivery: embed close to the business problem, translate ambiguity into a scoped solution, build quickly, and keep the work anchored to measurable operational value.</p>
+    </div>
+  </section>
+
+  <section class="container" id="projects">
+    <div class="section-head">
+      <div class="eyebrow">Selected work</div>
+      <h2>Projects aligned to Frontier GenAI delivery.</h2>
+    </div>
+    <div class="project-grid">
+      <article class="project">
+        <div class="tag">Production SaaS</div>
+        <h3>CrossExamine.AI</h3>
+        <p>Full-stack legal AI platform for privilege review with multi-tenant architecture, Claude Agent SDK, human review, audit trails, and production test coverage.</p>
+      </article>
+      <article class="project">
+        <div class="tag">Client workflow</div>
+        <h3>Legal Aid Intake Automation</h3>
+        <p>Claude-powered prototype for client screening and document collection, designed with human-in-the-loop attorney oversight.</p>
+      </article>
+      <article class="project">
+        <div class="tag">Enterprise docs</div>
+        <h3>Offline-First Processing</h3>
+        <p>React and Python platform for air-gapped document processing, search, coding schemes, and complete audit trails.</p>
+      </article>
+      <article class="project">
+        <div class="tag">ML data</div>
+        <h3>Synthetic Legal Corpus</h3>
+        <p>Storyline-aware synthetic document generator for ML training data, including label-error discovery and correction pipeline design.</p>
+      </article>
+      <article class="project">
+        <div class="tag">Consulting</div>
+        <h3>Upwork GenAI Work</h3>
+        <p>Client-facing discovery, scoped prototypes, LLM workflows, API integrations, structured outputs, and stakeholder-driven iteration.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="container" id="stack">
+    <div class="section-head">
+      <div class="eyebrow">Stack</div>
+      <h2>Tools and platforms I use to ship.</h2>
+    </div>
+    <div class="panel">
+      <p>Full-stack engineering plus frontier AI tooling, with emphasis on maintainability, evaluation, documentation, and enterprise controls.</p>
+      <div class="stack" aria-label="Technical stack">
+        <span>Python</span><span>FastAPI</span><span>TypeScript</span><span>Next.js / React</span><span>PostgreSQL</span><span>Redis</span><span>Docker</span><span>PyTorch</span><span>Claude Agent SDK</span><span>Anthropic API</span><span>OpenAI</span><span>Gemini</span><span>GitHub Actions</span><span>Sentry</span><span>WorkOS</span><span>Stripe</span><span>Modal GPU</span><span>Relativity</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="container" id="contact">
+    <div class="section-head">
+      <div class="eyebrow">Contact</div>
+      <h2>Available to discuss Frontier GenAI FDE work.</h2>
+    </div>
+    <div class="panel">
+      <p>Ben Ginsberg · San Diego, CA · <a href="mailto:beginsber@gmail.com?subject=Deloitte%20Frontier%20GenAI%20FDE%20Application">beginsber@gmail.com</a> · <a href="tel:+13863663241">(386) 366-3241</a></p>
+      <p>This page is intended as a focused supplement to my Deloitte application resume and cover letter.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div>© 2026 Ben Ginsberg</div>
+    <div><a href="../">CrossExamine.AI case study</a></div>
+  </div>
+</footer>
+</body>
+</html>
