@@ -3,559 +3,692 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CrossExamine.AI — Case Study for GitLab | Ben Ginsberg</title>
-<meta name="description" content="A production legal-AI SaaS I built solo in 9 weeks — the defensibility, audit-trail, and AI-with-guardrails patterns map directly onto CLM + legal-workflow automation. Written for GitLab's Legal Engineer role." />
-<meta property="og:title" content="CrossExamine.AI — Technical Case Study" />
-<meta property="og:description" content="Solo-built legal-AI SaaS: sparse autoencoders on Llama-3.1-8B, 0.976 recall on privilege detection, 82 endpoints, 2,256 tests, 9 weeks." />
+<title>Ben Ginsberg — Legal Engineer Case Study for GitLab</title>
+<meta name="description" content="A GitLab Legal Engineer-focused case study: CrossExamine.AI, a production legal-AI SaaS mapping legal workflows, AI guardrails, reporting infrastructure, integrations, and auditability to legal operations at scale." />
+<meta property="og:title" content="Ben Ginsberg — Legal Engineer Case Study for GitLab" />
+<meta property="og:description" content="Solo-built production legal-AI SaaS: legal workflow automation, AI decision layers, reporting, integrations, and defensibility-first audit trails." />
 <meta property="og:type" content="article" />
-
 <style>
 :root {
-  --bg:        #0d1117;
-  --panel:     #161b22;
-  --panel-2:   #1c232e;
-  --line:      #30363d;
-  --text:      #e6edf3;
-  --muted:     #8b949e;
-  --dim:       #6e7681;
-  --accent:    #58a6ff;
-  --accent-2:  #79c0ff;
-  --ok:        #3fb950;
-  --warn:      #d29922;
-  --bad:       #f85149;
-  --mono:      ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-  --sans:      -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
-  --max:       880px;
+  --void: #090d13;
+  --bg: #0d1117;
+  --panel: #121821;
+  --panel-2: #171f2b;
+  --panel-3: #1e2633;
+  --line: #30363d;
+  --line-soft: rgba(139,148,158,.22);
+  --text: #e6edf3;
+  --muted: #9aa7b5;
+  --dim: #6e7681;
+  --orange: #fc6d26;
+  --orange-2: #fca326;
+  --purple: #a989f5;
+  --blue: #58a6ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --paper: #f7f1e8;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --sans: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --max: 1120px;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
-body { font-family: var(--sans); font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted rgba(88,166,255,.4); }
-a:hover { color: var(--accent-2); border-bottom-color: var(--accent-2); }
-code { font-family: var(--mono); font-size: 0.92em; background: var(--panel-2); padding: 1px 6px; border-radius: 4px; color: #d2a8ff; }
-pre { font-family: var(--mono); font-size: 0.85em; background: var(--panel); padding: 16px 18px; border-radius: 8px; border: 1px solid var(--line); overflow-x: auto; line-height: 1.55; }
-pre code { background: transparent; padding: 0; color: var(--text); }
-hr { border: none; border-top: 1px solid var(--line); margin: 56px 0; }
-
-.container { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
-
-/* ---------- header ---------- */
-header.nav {
-  position: sticky; top: 0; z-index: 10;
-  background: rgba(13,17,23,.85);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
-  font-size: 14px;
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 18% 3%, rgba(252,109,38,.18), transparent 30rem),
+    radial-gradient(circle at 80% 9%, rgba(169,137,245,.14), transparent 32rem),
+    linear-gradient(90deg, rgba(252,109,38,.035) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(180deg, var(--void) 0, var(--bg) 34rem, #0b0f15 100%);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.66;
+  -webkit-font-smoothing: antialiased;
 }
-header.nav .inner {
-  max-width: var(--max); margin: 0 auto; padding: 12px 24px;
-  display: flex; justify-content: space-between; align-items: center; gap: 24px;
+a { color: #ffb366; text-decoration: none; border-bottom: 1px dotted rgba(252,163,38,.45); }
+a:hover { color: #ffd08a; border-bottom-color: #ffd08a; }
+code { font-family: var(--mono); font-size: .9em; color: #ffd08a; background: rgba(252,109,38,.10); padding: 1px 6px; border-radius: 5px; }
+strong { color: var(--text); }
+.container { width: min(var(--max), calc(100% - 44px)); margin: 0 auto; }
+.skip { position: absolute; left: -999px; top: 8px; z-index: 40; background: var(--orange); color: #111; padding: 8px 12px; border-radius: 6px; font-weight: 700; }
+.skip:focus { left: 8px; }
+
+/* ---------- nav ---------- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid rgba(252,109,38,.22);
+  background: rgba(9,13,19,.78);
+  backdrop-filter: blur(14px);
 }
-header.nav .brand { font-family: var(--mono); color: var(--muted); }
-header.nav .brand strong { color: var(--text); }
-header.nav nav a { color: var(--muted); border: none; margin-left: 20px; }
-header.nav nav a:hover { color: var(--text); }
-@media (max-width: 640px) { header.nav nav { display: none; } }
+.nav {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+.brand {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .015em;
+  border: 0;
+}
+.brand strong { color: var(--text); }
+.navlinks { display: flex; gap: 18px; font-size: 13px; font-family: var(--mono); }
+.navlinks a { color: var(--muted); border: 0; }
+.navlinks a:hover { color: var(--text); }
+@media (max-width: 780px) { .navlinks { display: none; } }
 
 /* ---------- hero ---------- */
-.hero { padding: 72px 0 48px; }
-.hero .kicker {
-  font-family: var(--mono); font-size: 13px; color: var(--accent);
-  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px;
+.hero { padding: 78px 0 44px; position: relative; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 42px; align-items: start; }
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffd08a;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-weight: 700;
+  margin-bottom: 18px;
 }
-.hero h1 {
-  font-size: 44px; line-height: 1.15; margin: 0 0 20px; letter-spacing: -0.02em;
+.kicker::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange), var(--orange-2));
+  box-shadow: 0 0 22px rgba(252,109,38,.9);
 }
-.hero h1 .sub {
-  display: block; font-size: 22px; font-weight: 400; color: var(--muted); margin-top: 10px; letter-spacing: 0;
+h1 {
+  margin: 0;
+  max-width: 810px;
+  font-family: var(--serif);
+  font-size: clamp(43px, 6vw, 78px);
+  line-height: .94;
+  letter-spacing: -.055em;
 }
-.hero .lede { font-size: 18px; color: #c9d1d9; max-width: 720px; }
-
-.metrics {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
-  margin-top: 40px;
+h1 .accent {
+  background: linear-gradient(105deg, #fff 0, #ffd08a 36%, #fc6d26 72%, #a989f5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
-.metric {
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-  padding: 16px 18px;
+.lede {
+  margin: 24px 0 0;
+  max-width: 850px;
+  color: #c9d1d9;
+  font-size: clamp(18px, 2.1vw, 22px);
+  line-height: 1.45;
 }
-.metric .n { font-family: var(--mono); font-size: 22px; color: var(--accent-2); font-weight: 600; }
-.metric .l { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
-@media (max-width: 720px) {
-  .hero h1 { font-size: 32px; }
-  .hero h1 .sub { font-size: 18px; }
-  .metrics { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* ---------- sections ---------- */
-section { padding: 8px 0; }
-section h2 {
-  font-size: 26px; letter-spacing: -0.01em; margin: 0 0 8px;
-  display: flex; align-items: baseline; gap: 12px;
-}
-section h2 .num { font-family: var(--mono); font-size: 14px; color: var(--accent); font-weight: 500; }
-section h3 { font-size: 18px; margin: 28px 0 8px; color: #c9d1d9; }
-section p { color: #c9d1d9; }
-
-.tagline {
-  color: var(--muted); margin-top: -4px; margin-bottom: 18px; font-size: 15px;
-}
-
-/* ---------- table ---------- */
-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
-th, td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
-th { background: var(--panel); color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
-td code { font-size: 0.88em; }
-
-/* ---------- callout ---------- */
-.callout {
-  border-left: 3px solid var(--accent);
-  background: linear-gradient(90deg, rgba(88,166,255,0.07), rgba(88,166,255,0.0) 60%);
-  padding: 14px 18px; margin: 20px 0; border-radius: 0 6px 6px 0; font-size: 15px;
-}
-.callout.ok   { border-left-color: var(--ok);   background: linear-gradient(90deg, rgba(63,185,80,0.08), rgba(63,185,80,0.0) 60%); }
-.callout.warn { border-left-color: var(--warn); background: linear-gradient(90deg, rgba(210,153,34,0.08), rgba(210,153,34,0.0) 60%); }
-.callout strong { color: var(--text); }
-
-/* ---------- ascii architecture ---------- */
-.ascii {
-  font-family: var(--mono); font-size: 12px; line-height: 1.45;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-  padding: 18px; overflow-x: auto; color: #c9d1d9;
-  white-space: pre;
-}
-
-/* ---------- pill row ---------- */
-.pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 8px; }
-.pill {
-  font-family: var(--mono); font-size: 12px; color: var(--text);
-  background: var(--panel); border: 1px solid var(--line);
-  padding: 6px 12px; border-radius: 4px;
-}
-.pill code { background: transparent; color: var(--accent-2); padding: 0; font-size: 1em; }
-.pill .dim { color: var(--muted); margin-left: 6px; }
-
-/* ---------- figures ---------- */
-.figure {
-  margin: 28px 0 24px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel);
+.hero-card {
+  border: 1px solid rgba(252,109,38,.30);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(252,109,38,.12), rgba(252,109,38,.025)),
+    rgba(18,24,33,.92);
+  box-shadow: 0 20px 70px rgba(0,0,0,.34);
   overflow: hidden;
 }
-.figure img { display: block; width: 100%; height: auto; }
-.figure figcaption {
-  font-family: var(--mono); font-size: 12px;
-  color: var(--muted); padding: 10px 16px;
-  border-top: 1px solid var(--line); background: var(--panel-2);
-  letter-spacing: 0.02em;
+.hero-card .top {
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
 }
-.figure figcaption strong { color: var(--text); font-weight: 500; }
+.hero-card .body { padding: 18px; }
+.map-row {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.map-row:last-child { border-bottom: 0; }
+.map-row .label { font-family: var(--mono); color: #ffd08a; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.map-row .text { color: #dbe4ee; font-size: 14px; line-height: 1.45; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid rgba(252,109,38,.58);
+  border-radius: 999px;
+  padding: 9px 16px;
+  color: #ffd08a;
+  background: rgba(252,109,38,.08);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+.button.primary { background: linear-gradient(135deg, var(--orange), var(--orange-2)); color: #11151d; border-color: transparent; }
+.button:hover { transform: translateY(-2px); border-color: #ffd08a; background: rgba(252,109,38,.14); }
+.button.primary:hover { color: #11151d; background: linear-gradient(135deg, #ff874f, #ffd36a); }
 
-/* ---------- CTAs ---------- */
-.cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 8px; }
-.cta {
-  font-family: var(--mono); font-size: 13px;
-  padding: 9px 16px; border-radius: 6px;
-  border: 1px solid var(--line); background: var(--panel);
-  color: var(--text); letter-spacing: 0.02em;
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 42px 0 0;
 }
-.cta:hover { border-color: var(--accent); color: var(--accent-2); }
-.cta.primary { background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600; }
-.cta.primary:hover { background: var(--accent-2); border-color: var(--accent-2); color: #0d1117; }
+.metric {
+  position: relative;
+  border: 1px solid var(--line-soft);
+  border-top: 3px solid var(--orange);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.008));
+  padding: 18px 16px;
+  overflow: hidden;
+}
+.metric::after {
+  content: "";
+  position: absolute;
+  inset: auto 12px 10px auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(252,109,38,.12);
+  filter: blur(1px);
+}
+.metric .n { font-family: var(--mono); color: #ffd08a; font-size: 25px; font-weight: 800; line-height: 1; }
+.metric .l { margin-top: 7px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; line-height: 1.35; }
+@media (max-width: 920px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-card { max-width: 620px; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) { .metrics { grid-template-columns: 1fr; } }
 
-/* ---------- tag pills ---------- */
-.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 6px; }
-.tag {
-  font-family: var(--mono); font-size: 12px; color: var(--muted);
-  background: var(--panel); border: 1px solid var(--line);
-  padding: 3px 10px; border-radius: 20px;
+/* ---------- content ---------- */
+section { padding: 52px 0; }
+section + section { border-top: 1px solid var(--line-soft); }
+.section-head { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: 22px; align-items: baseline; margin-bottom: 20px; }
+.num { font-family: var(--mono); color: var(--orange-2); font-size: 13px; letter-spacing: .12em; }
+h2 { margin: 0; font-size: clamp(27px, 3.2vw, 42px); line-height: 1.05; letter-spacing: -.035em; }
+.tagline { margin: 8px 0 0; color: var(--muted); font-size: 17px; max-width: 760px; }
+h3 { margin: 28px 0 10px; color: #f0f4f8; font-size: 19px; letter-spacing: -.01em; }
+p { color: #c9d1d9; }
+ul { padding-left: 20px; color: #c9d1d9; }
+li { margin: 8px 0; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 820px) { .two-col, .three-col { grid-template-columns: 1fr; } .section-head { grid-template-columns: 1fr; gap: 6px; } }
+.card {
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: rgba(18,24,33,.78);
+  padding: 20px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.16);
 }
+.card h3 { margin-top: 0; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.card .eyebrow { font-family: var(--mono); color: var(--orange-2); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; margin-bottom: 8px; }
+
+/* ---------- fit grid ---------- */
+.fit-grid { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; margin-top: 24px; }
+.fit-row {
+  display: grid;
+  grid-template-columns: 235px minmax(0, 1fr) minmax(0, 1fr);
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(18,24,33,.78);
+}
+.fit-row > div { padding: 14px 16px; border-right: 1px solid var(--line-soft); }
+.fit-row > div:last-child { border-right: 0; }
+.fit-row .need { background: rgba(252,109,38,.055); color: #ffd08a; font-weight: 800; }
+.fit-row .proof { color: #dbe4ee; }
+.fit-row .ship { color: var(--muted); }
+.fit-row.header-row { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
+@media (max-width: 880px) {
+  .fit-row { grid-template-columns: 1fr; }
+  .fit-row > div { border-right: 0; border-bottom: 1px solid var(--line-soft); }
+  .fit-row > div:last-child { border-bottom: 0; }
+  .fit-row.header-row { display: none; }
+}
+
+/* ---------- workflow rail ---------- */
+.rail {
+  margin-top: 26px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(88,166,255,.06), rgba(18,24,33,.55));
+  padding: 18px;
+}
+.flow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.step {
+  min-height: 128px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(9,13,19,.45);
+}
+.step .snum { font-family: var(--mono); color: var(--orange-2); font-size: 12px; }
+.step strong { display: block; margin: 8px 0 5px; line-height: 1.2; }
+.step span { color: var(--muted); font-size: 13px; line-height: 1.35; display: block; }
+@media (max-width: 1050px) { .flow { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) { .flow { grid-template-columns: 1fr; } }
+
+/* ---------- terminal / ascii ---------- */
+.terminal {
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #080c12;
+  box-shadow: 0 22px 55px rgba(0,0,0,.28);
+}
+.term-top { display: flex; gap: 7px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line-soft); background: rgba(255,255,255,.025); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+.dot:nth-child(2) { background: var(--orange-2); }
+.dot:nth-child(3) { background: var(--green); }
+.term-title { margin-left: 8px; font-family: var(--mono); color: var(--muted); font-size: 12px; }
+.ascii {
+  margin: 0;
+  padding: 18px;
+  overflow-x: auto;
+  white-space: pre;
+  color: #dbe4ee;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* ---------- images ---------- */
+.figure {
+  margin: 24px 0;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(18,24,33,.9);
+}
+.figure img { width: 100%; height: auto; display: block; }
+.figure figcaption { padding: 12px 16px; border-top: 1px solid var(--line-soft); color: var(--muted); font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,.025); }
+
+/* ---------- tables and pills ---------- */
+table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+th, td { border: 1px solid var(--line-soft); padding: 12px 14px; text-align: left; vertical-align: top; }
+th { color: #ffd08a; background: rgba(252,109,38,.07); font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+td { color: #c9d1d9; background: rgba(18,24,33,.48); }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+.pill { border: 1px solid var(--line-soft); border-radius: 999px; padding: 6px 11px; color: #dbe4ee; background: rgba(18,24,33,.8); font-family: var(--mono); font-size: 12px; }
+.pill.hot { color: #111; background: linear-gradient(135deg, var(--orange), var(--orange-2)); border-color: transparent; font-weight: 800; }
+
+.callout {
+  border: 1px solid rgba(252,109,38,.28);
+  border-left: 4px solid var(--orange);
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(252,109,38,.12), rgba(252,109,38,.025));
+  padding: 16px 18px;
+  color: #dbe4ee;
+  margin: 20px 0;
+}
+.callout.blue { border-color: rgba(88,166,255,.28); border-left-color: var(--blue); background: linear-gradient(90deg, rgba(88,166,255,.10), rgba(88,166,255,.02)); }
+.callout.green { border-color: rgba(63,185,80,.28); border-left-color: var(--green); background: linear-gradient(90deg, rgba(63,185,80,.10), rgba(63,185,80,.02)); }
 
 /* ---------- footer ---------- */
-footer {
-  margin-top: 64px; padding: 40px 0 64px;
-  border-top: 1px solid var(--line);
-  color: var(--muted); font-size: 14px;
-}
-footer .container { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+footer { margin-top: 36px; padding: 42px 0 64px; border-top: 1px solid var(--line-soft); color: var(--muted); font-size: 14px; }
+footer .foot { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
 footer a { color: var(--text); }
 
-ul { padding-left: 20px; }
-ul li { margin-bottom: 6px; color: #c9d1d9; }
-
-/* subtle accent bar under section numbers */
-.lede strong { color: var(--text); }
-
-/* reduce motion for prefers-reduced-motion */
 @media (prefers-reduced-motion: no-preference) {
-  .metric { transition: transform .15s ease, border-color .15s ease; }
-  .metric:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .metric, .card, .step { transition: transform .18s ease, border-color .18s ease; }
+  .metric:hover, .card:hover, .step:hover { transform: translateY(-2px); border-color: rgba(252,163,38,.56); }
+  .hero h1, .lede, .actions, .metrics, .hero-card { animation: rise .55s ease both; }
+  .lede { animation-delay: .08s; }
+  .actions { animation-delay: .14s; }
+  .metrics, .hero-card { animation-delay: .2s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 }
 </style>
 </head>
 <body>
-
-<header class="nav">
-  <div class="inner">
-    <div class="brand"><strong>Ben Ginsberg</strong> / case-studies / crossexamine.ai / for gitlab</div>
-    <nav>
-      <a href="#problem">Problem</a>
-      <a href="#architecture">Architecture</a>
-      <a href="#ml">ML Pipeline</a>
-      <a href="#interpretability">Interpretability</a>
-      <a href="#results">Results</a>
+<a class="skip" href="#main">Skip to content</a>
+<header class="header">
+  <div class="container nav">
+    <a class="brand" href="#top"><strong>Ben Ginsberg</strong> / crossexamine.ai / for GitLab Legal</a>
+    <nav class="navlinks" aria-label="Page navigation">
+      <a href="#fit">Fit</a>
+      <a href="#workflows">Workflows</a>
+      <a href="#ai">AI Logic</a>
+      <a href="#data">Data</a>
+      <a href="#ops">Ops</a>
     </nav>
   </div>
 </header>
 
-<main class="container">
-
-  <!-- ---------------- HERO ---------------- -->
-  <section class="hero">
-    <div class="kicker">Case Study · 2026 · San Diego, CA · Remote-first, async-native</div>
-    <h1>
-      CrossExamine.AI
-      <span class="sub">Written for GitLab's Legal Engineer role — a production legal-AI SaaS, solo-built in 9 weeks.</span>
-    </h1>
-    <p class="lede">
-      The JD says the Legal Engineer role <em>"bridges two worlds"</em> — Legal &amp; Corporate Affairs on one side,
-      the technical systems that serve them on the other. I've been living in both for 9 weeks: legal process and
-      doctrine on one side, production <strong>Python + TypeScript + AI integrations</strong> on the other, with
-      Claude Code in the loop every day. The defensibility, audit-trail, and AI-with-guardrails patterns on this
-      page are the same patterns that have to ship inside an Ironclad CLM + Salesforce + Zuora stack to actually
-      scale a legal team. That's why I'm writing to GitLab.
-    </p>
-
-    <div class="cta-row">
-      <a class="cta primary" href="mailto:beginsber@gmail.com?subject=GitLab%20%E2%80%94%20Legal%20Engineer%20application">Email Ben</a>
-      <a class="cta" href="#architecture">Jump to architecture</a>
-      <a class="cta" href="#results">Jump to results</a>
+<main id="main">
+  <section class="hero" id="top">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker">Legal Engineer case study · Remote US · 2026</div>
+        <h1>Legal workflows should ship like <span class="accent">product infrastructure.</span></h1>
+        <p class="lede">
+          GitLab's Legal Engineer role asks for someone who can bridge Legal &amp; Corporate Affairs with the technical systems that make legal work scale. CrossExamine.AI is my proof: I solo-built a production legal-AI SaaS with intake, workflow routing, AI decision layers, reporting data models, integrations, and tamper-evident auditability — the same operating pattern needed for CLM, compliance automation, e-billing, and legal analytics.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="mailto:beginsber@gmail.com?subject=GitLab%20Legal%20Engineer%20%2F%20CrossExamine%20case%20study">Email Ben</a>
+          <a class="button" href="#fit">Map to role</a>
+          <a class="button" href="#system">System architecture</a>
+        </div>
+      </div>
+      <aside class="hero-card" aria-label="Role fit summary">
+        <div class="top"><span>role_fit.yml</span><span>validated</span></div>
+        <div class="body">
+          <div class="map-row"><div class="label">Legal</div><div class="text">Paralegal + investigations grounding; privilege, e-discovery, matter workflows, chain-of-custody.</div></div>
+          <div class="map-row"><div class="label">Systems</div><div class="text">Python, TypeScript, SQL, API integrations, multi-tenant architecture, workflow automation.</div></div>
+          <div class="map-row"><div class="label">AI</div><div class="text">Prompt libraries, scoped agents, source-verified recommendations, evaluation and audit trails.</div></div>
+          <div class="map-row"><div class="label">Ops</div><div class="text">Dashboards, reporting schemas, self-service workflows, cross-functional handoffs.</div></div>
+        </div>
+      </aside>
     </div>
-
-    <div class="metrics">
+    <div class="container metrics" aria-label="Project metrics">
       <div class="metric"><div class="n">82</div><div class="l">FastAPI endpoints</div></div>
-      <div class="metric"><div class="n">2,256</div><div class="l">tests passing</div></div>
-      <div class="metric"><div class="n">0.976</div><div class="l">recall on privilege</div></div>
-      <div class="metric"><div class="n">9 wks</div><div class="l">solo, jan&ndash;mar 2026</div></div>
-    </div>
-
-    <div class="tags">
-      <span class="tag">Python</span>
-      <span class="tag">TypeScript</span>
-      <span class="tag">FastAPI</span>
-      <span class="tag">Next.js 16</span>
-      <span class="tag">React 19</span>
-      <span class="tag">PostgreSQL</span>
-      <span class="tag">AWS-portable</span>
-      <span class="tag">PyTorch</span>
-      <span class="tag">Sparse Autoencoders</span>
-      <span class="tag">Llama-3.1-8B</span>
-      <span class="tag">Claude Code</span>
-      <span class="tag">WorkOS SSO</span>
+      <div class="metric"><div class="n">2,256</div><div class="l">tests</div></div>
+      <div class="metric"><div class="n">97.6%</div><div class="l">privilege recall</div></div>
+      <div class="metric"><div class="n">9 wks</div><div class="l">solo build</div></div>
     </div>
   </section>
 
-  <hr />
+  <section id="fit">
+    <div class="container">
+      <div class="section-head">
+        <div class="num">01 / FIT</div>
+        <div>
+          <h2>What GitLab needs, translated into shipped work.</h2>
+          <p class="tagline">The page is not just "I built AI." It is evidence that I can take an ambiguous legal operations problem and return with a working system design.</p>
+        </div>
+      </div>
 
-  <!-- ---------------- PROBLEM ---------------- -->
-  <section id="problem">
-    <h2><span class="num">01</span>The Problem</h2>
-    <p class="tagline">Privilege review is the worst workflow in discovery — and "just use an LLM" doesn't fix it.</p>
-
-    <ul>
-      <li><strong>Black-box ML is a non-starter.</strong> A privilege flag without <em>why</em> gives a court nothing to rely on.</li>
-      <li><strong>Raw LLM prompting is worse.</strong> Hallucinated quotes, silent drift between matters, no audit trail — malpractice in production.</li>
-      <li><strong>Existing tools don't calibrate per-matter.</strong> Privilege context shifts dramatically between a patent case and a class action; one global threshold is wrong everywhere.</li>
-    </ul>
-    <p style="font-size: 15px; color: var(--muted); margin-top: 16px;">
-      Same bar applies to CLM automation: a clause extraction, NDA routing call, or auto-approval without provenance is the failure mode that erodes trust with Sales, Procurement, and Legal all at once. A legal-engineering stack has to produce the answer <em>and</em> the audit trail in one shot.
-    </p>
-  </section>
-
-  <hr />
-
-  <!-- ---------------- ARCHITECTURE ---------------- -->
-  <section id="architecture">
-    <h2><span class="num">02</span>System Architecture</h2>
-    <p class="tagline">Multi-tenant SaaS, batch-first ML, evidence-first API shape.</p>
-
-    <div class="ascii">
-┌──────────────────────────────────────────────────────────────────────────┐
-│                           Next.js 16 / React 19                          │
-│        review queues · evidence cards · privilege log · audit UI         │
-└────────────────────────────────┬─────────────────────────────────────────┘
-                                 │  TanStack Query · JWT
-                                 ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│                       FastAPI  (82 endpoints · 10 routers)               │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌───────────────┐   │
-│  │ classify │ │ evidence │ │  queue   │ │  audit   │ │ priv-log gen  │   │
-│  └─────┬────┘ └─────┬────┘ └─────┬────┘ └─────┬────┘ └──────┬────────┘   │
-│        │            │            │            │             │            │
-│        ▼            ▼            ▼            ▼             ▼            │
-│   ┌────────────────────────────────────────────────────────────────┐     │
-│   │        service layer: classification / calibration /           │     │
-│   │        matter / validation / HMAC-signed audit trail           │     │
-│   └────────────────────────────────────────────────────────────────┘     │
-│              │                    │                   │                  │
-│              ▼                    ▼                   ▼                  │
-│   ┌────────────────┐   ┌────────────────────┐   ┌────────────────┐       │
-│   │ PostgreSQL     │   │ Redis (batch jobs, │   │ Claude API +   │       │
-│   │ 10 tables,     │   │ rate-limit,        │   │ quality guard  │       │
-│   │ multi-tenant   │   │ session cache)     │   │ (Stage 3 LLM)  │       │
-│   └────────────────┘   └────────────────────┘   └────────────────┘       │
-│              │                                                           │
-│              ▼                                                           │
-│   ┌──────────────────────────────────────────────────────────────┐       │
-│   │   Modal (H100) — Llama-3.1-8B + 32K-dim Sparse Autoencoder   │       │
-│   │                 feature extraction as a remote job           │       │
-│   └──────────────────────────────────────────────────────────────┘       │
-└──────────────────────────────────────────────────────────────────────────┘
-        │
-        ▼
-   WorkOS SSO/SAML     Stripe billing     Sentry     GitHub Actions CI
+      <div class="fit-grid">
+        <div class="fit-row header-row"><div>GitLab requirement</div><div>CrossExamine proof</div><div>How it transfers to LACA</div></div>
+        <div class="fit-row">
+          <div class="need">Automated legal workflows</div>
+          <div class="proof">Matter intake, custodian-scoped classification, 4-queue routing, reviewer overrides, QC sampling, privilege-log generation.</div>
+          <div class="ship">NDA routing, contract review queues, IP enforcement triage, DSR processing, retention workflows.</div>
+        </div>
+        <div class="fit-row">
+          <div class="need">AI prompts + logic layers</div>
+          <div class="proof">Claude review layer with scoped instructions, evidence cards, quote verification, and versioned prompt/playbook patterns.</div>
+          <div class="ship">Ironclad AI review, clause playbooks, decision trees, escalation logic, and safe legal self-service.</div>
+        </div>
+        <div class="fit-row">
+          <div class="need">Legal tech ownership</div>
+          <div class="proof">WorkOS SSO/SAML, Relativity import/export, Stripe, Modal GPU, Postgres/Redis, Sentry, CI/CD.</div>
+          <div class="ship">Own parts of the CLM, e-billing, compliance, intake, and automation stack beyond end-user admin.</div>
+        </div>
+        <div class="fit-row">
+          <div class="need">Reporting + analytics</div>
+          <div class="proof">Tenant-scoped data model with org_id, matter_id, request_id, review outcomes, audit events, validation metrics.</div>
+          <div class="ship">Dashboards for legal leadership, cycle times, intake load, contract bottlenecks, compliance SLAs, product metrics.</div>
+        </div>
+        <div class="fit-row">
+          <div class="need">Cross-functional translation</div>
+          <div class="proof">Built the product surface where legal reviewers, ML systems, APIs, billing, identity, and audit all meet.</div>
+          <div class="ship">Partner effectively with Sales, Finance, Security, Trust &amp; Safety, People, and internal AI/ML teams.</div>
+        </div>
+      </div>
     </div>
-
-    <h3>Key architectural decisions</h3>
-
-    <table>
-      <thead>
-        <tr><th>Decision</th><th>Why</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Batch-first, not request-first.</strong> Classifications run as async jobs with a state-machine lifecycle (pending → extracting → scoring → reviewing → finalized).</td>
-          <td>A privilege review is 10K+ documents. Treating each classification as a synchronous REST call forces the client to manage retries, backoff, and partial failures. The state machine owns that.</td>
-        </tr>
-        <tr>
-          <td><strong>GPU is a remote service, not a sidecar.</strong> Modal hosts the Llama-3.1-8B + SAE extraction behind an HTTP boundary.</td>
-          <td>Lets the API stay on commodity CPU infra, keeps GPU cost purely variable, and makes the extractor independently versionable. The HTTP boundary was chosen specifically so extraction moves to <strong>AWS (SageMaker async endpoints or EKS + GPU nodes)</strong> as a config change, not a rewrite — the right path once compliance + data-residency requirements kick in.</td>
-        </tr>
-        <tr>
-          <td><strong>Evidence is first-class, not a response field.</strong> <code>/classifications/{id}/evidence</code> is its own endpoint, and the DB stores ablation/contrastive results separately from the determination.</td>
-          <td>Reviewers pull evidence lazily when they want to dig in. Auditors pull it weeks later. It shouldn't live only in a hot response.</td>
-        </tr>
-        <tr>
-          <td><strong>Multi-tenant isolation at the query level, not just the row.</strong> Every service takes <code>org_id</code> and <code>matter_id</code>; tests assert cross-tenant leakage is impossible on each endpoint.</td>
-          <td>Legal (and healthcare) tenancy is non-negotiable. Relying on app logic alone is a <code>JOIN</code>-away from a breach.</td>
-        </tr>
-        <tr>
-          <td><strong>HMAC-signed audit trail.</strong> Every review action is signed and chained; tampering breaks the chain.</td>
-          <td>Defensibility packages ship to court as signed bundles. Same primitive a regulated healthcare insurer needs for claim-adjudication audit.</td>
-        </tr>
-      </tbody>
-    </table>
   </section>
 
-  <hr />
+  <section id="workflows">
+    <div class="container">
+      <div class="section-head">
+        <div class="num">02 / WORKFLOWS</div>
+        <div>
+          <h2>From ad hoc legal requests to self-service systems.</h2>
+          <p class="tagline">The core design pattern: intake once, route deterministically, escalate the edge cases, and log every decision for later review.</p>
+        </div>
+      </div>
 
-  <!-- ---------------- ML PIPELINE ---------------- -->
-  <section id="ml">
-    <h2><span class="num">03</span>The ML Pipeline</h2>
-    <p class="tagline">3-stage ensemble over sparse-autoencoder features on Llama-3.1-8B hidden states.</p>
+      <div class="rail">
+        <div class="flow" aria-label="Legal workflow automation sequence">
+          <div class="step"><div class="snum">01</div><strong>Intake</strong><span>Matter, custodian, document source, reviewer scope, legal issue, deadline.</span></div>
+          <div class="step"><div class="snum">02</div><strong>Normalize</strong><span>Metadata extraction, dedupe, hash, tenant boundary, chain-of-custody event.</span></div>
+          <div class="step"><div class="snum">03</div><strong>Classify</strong><span>Probe ensemble + AI assist with deterministic confidence bands.</span></div>
+          <div class="step"><div class="snum">04</div><strong>Route</strong><span>Auto-classify, spot-check, must-review, QC sample, escalation queues.</span></div>
+          <div class="step"><div class="snum">05</div><strong>Review</strong><span>Evidence cards, source quotes, overrides, accept/edit/reject feedback loop.</span></div>
+          <div class="step"><div class="snum">06</div><strong>Report</strong><span>Privilege log, validation metrics, audit bundle, dashboard-ready outcomes.</span></div>
+        </div>
+      </div>
 
-    <p>
-      A deliberate ensemble — each stage has a different job and a different failure mode, so a mistake in one
-      is caught by the next: <strong>Triage</strong> (cheap lexical + metadata filter) →
-      <strong>Core</strong> (7-probe linear ensemble over SAE features, calibrated voting) →
-      <strong>Review</strong> (Claude pass, quality-guard'd against hallucinated quotes).
-    </p>
-
-    <figure class="figure">
-      <img src="../pipeline-overview.png" alt="CrossExamine.AI five-stage pipeline: tokenize, extract, decompose, classify, record — with pinned model, SAE, and hook configuration." loading="lazy" />
-      <figcaption>Pipeline, end to end — with pinned model / SAE / layer config. <strong>Reproducibility is a requirement, not a feature.</strong></figcaption>
-    </figure>
-
-    <h3>Why sparse autoencoders?</h3>
-    <p>
-      A dense Llama hidden state classifies fine but is uninterpretable polysemantic soup — fatal for defensibility.
-      An SAE decomposes it into a much larger, much sparser feature basis where individual features correspond to
-      human-readable concepts ("cites outside counsel", "forwarded board memo"). A linear probe on SAE features is
-      still linear — but its weights are <em>legible</em>. When it fires, you can point at three specific features
-      and say <em>these are why</em>.
-    </p>
-
-    <div class="callout ok">
-      <strong>131K → 32K SAE migration.</strong> Cross-domain F1: <code>0.494 → 0.692</code>. 3× better transfer
-      across matter types while cutting storage and serving cost. Highest-leverage change of the project.
+      <div class="two-col" style="margin-top:18px;">
+        <div class="card">
+          <div class="eyebrow">GitLab analogue</div>
+          <h3>Contract lifecycle management</h3>
+          <p>Swap documents for agreements and privilege categories for clause / risk categories: NDA auto-routing, fallback clauses, liability-cap review, renewal flags, and business-owner escalation.</p>
+        </div>
+        <div class="card">
+          <div class="eyebrow">GitLab analogue</div>
+          <h3>Compliance + data workflows</h3>
+          <p>Use the same state-machine model for DSR processing, retention inventorying, compliance monitoring, policy exceptions, and customer-facing metric guidance.</p>
+        </div>
+      </div>
     </div>
-
-    <p style="font-size: 15px; color: var(--muted); margin-top: 18px;">
-      Before fitting a single probe I rebuilt the training data — industry-standard privilege corpora had ~71% label
-      error. Best ML work on a regulated problem is almost always dataset work.
-    </p>
   </section>
 
-  <hr />
+  <section id="system">
+    <div class="container">
+      <div class="section-head">
+        <div class="num">03 / SYSTEM</div>
+        <div>
+          <h2>A legal-ops stack with product-grade boundaries.</h2>
+          <p class="tagline">Built as multi-tenant SaaS: clear API ownership, async jobs, structured events, and integrations that can be swapped without rewriting the legal logic.</p>
+        </div>
+      </div>
 
-  <!-- ---------------- INTERPRETABILITY ---------------- -->
-  <section id="interpretability">
-    <h2><span class="num">04</span>Interpretability & The Faithfulness Gate</h2>
-    <p class="tagline">"Explanations" that don't actually explain anything are worse than no explanation.</p>
+      <div class="terminal">
+        <div class="term-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="term-title">architecture/legal-automation.txt</span></div>
+<pre class="ascii">┌────────────────────────────────────────────────────────────────────────────┐
+│                         Legal reviewer / ops user                          │
+│      queues · self-service intake · evidence cards · dashboards            │
+└──────────────────────────────────┬─────────────────────────────────────────┘
+                                   │ Next.js / React · TanStack Query
+                                   ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                         FastAPI legal workflow API                         │
+│  intake │ matters │ classification │ evidence │ audit │ reporting │ export │
+└─────────┬───────────────┬───────────────────┬────────────────────┬────────┘
+          │               │                   │                    │
+          ▼               ▼                   ▼                    ▼
+  PostgreSQL        Redis job state      Claude / AI layer     Relativity export
+  tenant-scoped     retry + batch        quote verification    WorkOS / Stripe
+  reporting model   orchestration        prompt playbooks      Sentry / CI
+          │
+          ▼
+  HMAC-signed audit log + SHA-256 document hashes + replayable validation bundle</pre>
+      </div>
 
-    <p>
-      Most "explainable AI" in legal software is post-hoc rationalization — a second model writing a plausible story
-      about the first model's output. Reads well, often unfaithful, leaves a reviewer worse off than no explanation.
-      Every evidence claim in CrossExamine has to pass a three-part faithfulness gate before it ships to the UI:
-    </p>
-
-    <table>
-      <thead><tr><th>Check</th><th>What it tests</th><th>Failure mode caught</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><strong>Ablation</strong></td>
-          <td>Zero out the claimed SAE feature; re-run the probe.</td>
-          <td>"Evidence" that the model didn't actually rely on — confidence shouldn't move.</td>
-        </tr>
-        <tr>
-          <td><strong>Contrastive probe</strong></td>
-          <td>Compare activation on this document vs. paired non-privileged documents from the same matter.</td>
-          <td>Features that fire on <em>everything</em> in this matter — signal ≈ base rate.</td>
-        </tr>
-        <tr>
-          <td><strong>Stability</strong></td>
-          <td>Re-run under small input perturbations (paraphrase, re-chunk).</td>
-          <td>Features whose activation is an artifact of tokenization, not content.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p>
-      Features that pass the gate become <strong>latent evidence cards</strong> — the thing a lawyer actually sees:
-      a snippet from the document, the human-readable label for the SAE feature, the activation strength, and the
-      ablation delta. Evidence cards are versioned with the model and signed into the audit trail, so a reviewer
-      six months later can reconstruct exactly what was in front of the system at decision time.
-    </p>
-
-    <figure class="figure">
-      <img src="../evidence-cards.png" alt="Three evidence cards showing attorney-client communication, legal advice seeking, and public disclosure features — with activation bars, direction, and causal metrics including ablation, DLA, and attribution patching." loading="lazy" />
-      <figcaption>Evidence cards — what reviewers actually see. Each card: SAE feature ID &amp; human-readable label, activation strength, <strong>ablation / DLA / attribution-patch</strong>, and polysemantic warnings when a feature fires on unrelated content.</figcaption>
-    </figure>
-
-    <div class="callout">
-      <strong>Same pattern, different domain.</strong> For an AI-powered CLM: replace "privileged / not privileged"
-      with "missing required clause / non-standard liability cap / auto-approvable." Same bar, same audit trail,
-      same reason a post-hoc "the AI said so" rationalization won't clear enterprise legal review.
+      <div class="three-col" style="margin-top:18px;">
+        <div class="card"><div class="eyebrow">Boundary</div><h3>Legal logic separate from tools</h3><p>Contract platforms change; the core decision trees, escalation criteria, and audit primitives should survive vendor migrations.</p></div>
+        <div class="card"><div class="eyebrow">Scale</div><h3>Async by default</h3><p>Batch review, retry logic, and state transitions belong in the system — not in a spreadsheet or a person chasing status updates.</p></div>
+        <div class="card"><div class="eyebrow">Trust</div><h3>Evidence-first API shape</h3><p>The answer and its basis are separate, retrievable, versioned objects. That is how legal, compliance, and security teams keep confidence in automation.</p></div>
+      </div>
     </div>
-
-    <p style="font-size: 15px; color: var(--muted);">
-      <strong style="color:var(--text)">Stage-3 quality guard:</strong> every quote Claude emits is span-matched against
-      the source document. Non-literal quotes fail the guard; the recommendation is rejected and retried. Makes the
-      agent's output safe for a lawyer — or a court — without a separate verification step.
-    </p>
   </section>
 
-  <hr />
+  <section id="ai">
+    <div class="container">
+      <div class="section-head">
+        <div class="num">04 / AI</div>
+        <div>
+          <h2>AI-enabled, not AI-hand-wavy.</h2>
+          <p class="tagline">GitLab wants AI in daily workflows. The hard part is not prompting; it is keeping AI useful, scoped, measurable, and safe enough for legal work.</p>
+        </div>
+      </div>
 
-  <!-- ---------------- RESULTS & ENGINEERING ---------------- -->
+      <div class="two-col">
+        <div>
+          <p>CrossExamine uses a 3-stage system: deterministic triage, a 7-probe ensemble over sparse-autoencoder features, then a Claude-powered review layer with guardrails. The AI layer does not get to invent citations. Every quoted span is matched against the source document before it reaches a reviewer.</p>
+          <div class="callout">
+            <strong>Legal Engineer transfer:</strong> the same guardrail pattern applies to contract-review AI, clause extraction, policy Q&amp;A, self-service guidance, and customer-facing product metric explanations. AI can draft the answer; the system must verify the provenance.
+          </div>
+          <div class="pills" aria-label="AI capabilities">
+            <span class="pill hot">Claude Agent SDK</span>
+            <span class="pill">MCP-style tools</span>
+            <span class="pill">prompt playbooks</span>
+            <span class="pill">source verification</span>
+            <span class="pill">evaluation harnesses</span>
+            <span class="pill">human override loops</span>
+          </div>
+        </div>
+        <figure class="figure" style="margin:0;">
+          <img src="../evidence-cards.png" alt="CrossExamine evidence cards showing legal feature labels, activation values, and causal metrics." loading="lazy" />
+          <figcaption>Reviewer-facing evidence cards: legal label, source span, activation, and causal checks.</figcaption>
+        </figure>
+      </div>
+
+      <table aria-label="AI guardrail mapping">
+        <thead><tr><th>Guardrail</th><th>What it prevents</th><th>GitLab legal use case</th></tr></thead>
+        <tbody>
+          <tr><td>Span verification</td><td>Hallucinated quotes or fake support</td><td>Contract summaries, AI clause review, policy Q&amp;A</td></tr>
+          <tr><td>Versioned playbooks</td><td>Silent prompt drift between practice areas</td><td>Sales contracts vs. privacy requests vs. employment workflows</td></tr>
+          <tr><td>Human override capture</td><td>Unmeasured automation quality</td><td>Feedback loops for Legal Ops dashboards and AI/ML partners</td></tr>
+          <tr><td>Audit bundles</td><td>Unexplainable legal decisions</td><td>Compliance, customer trust, leadership visibility</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="data">
+    <div class="container">
+      <div class="section-head">
+        <div class="num">05 / DATA</div>
+        <div>
+          <h2>Dashboards start with a sane event model.</h2>
+          <p class="tagline">Legal analytics are only credible when the underlying workflow emits structured, tenant-safe, decision-grade data.</p>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="metric"><div class="n">org_id</div><div class="l">tenant boundary on every row</div></div>
+        <div class="metric"><div class="n">matter_id</div><div class="l">legal context preserved</div></div>
+        <div class="metric"><div class="n">request_id</div><div class="l">traceable workflow events</div></div>
+      </div>
+
+      <div class="two-col" style="margin-top:18px;">
+        <div class="card">
+          <div class="eyebrow">Reporting infrastructure</div>
+          <h3>What I would instrument first at GitLab</h3>
+          <ul>
+            <li>Contract intake volume, routing outcomes, time-in-stage, approver bottlenecks.</li>
+            <li>AI suggestion accept/edit/reject rates by playbook and business unit.</li>
+            <li>DSR and compliance SLA clocks, exception aging, policy question categories.</li>
+            <li>Customer-facing product metric requests and reusable guidance coverage.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="eyebrow">CrossExamine shipped</div>
+          <h3>Current reporting primitives</h3>
+          <ul>
+            <li>Structured logs with organization, matter, request, reviewer, and model metadata.</li>
+            <li>Validation metrics with confidence intervals and replayability proof.</li>
+            <li>Review decisions captured as accept, edit, reject, override, and escalation events.</li>
+            <li>Exportable audit bundles for court-ready defensibility.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ops">
+    <div class="container">
+      <div class="section-head">
+        <div class="num">06 / OPS</div>
+        <div>
+          <h2>Built in GitLab's preferred operating mode: async, AI-native, measurable.</h2>
+          <p class="tagline">The role description values initiative: understand the problem, return with a system design, and make the work easier to measure. That is how this project was built.</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <p>I used AI as a daily productivity multiplier — scaffolding endpoints, tests, migrations, type plumbing, and review checklists — while keeping judgment on architecture, legal workflow shape, data quality, and reviewer experience. That is the difference between "using AI" and operating AI-native.</p>
+          <p>The result is a production-scale artifact a hiring team can inspect: API surfaces, workflow states, model evaluation, legal auditability, and implementation tradeoffs.</p>
+        </div>
+        <div class="card">
+          <div class="eyebrow">Quality bar</div>
+          <div class="pills">
+            <span class="pill hot">2,256 tests</span>
+            <span class="pill">Ruff</span>
+            <span class="pill">mypy strict</span>
+            <span class="pill">GitHub Actions</span>
+            <span class="pill">Alembic smoke tests</span>
+            <span class="pill">Sentry</span>
+            <span class="pill">WorkOS SSO/SAML</span>
+            <span class="pill">HMAC audit trail</span>
+            <span class="pill">SHA-256 hashing</span>
+          </div>
+        </div>
+      </div>
+
+      <figure class="figure">
+        <img src="../pipeline-overview.png" alt="CrossExamine pipeline overview with tokenize, extract, decompose, classify, and record stages." loading="lazy" />
+        <figcaption>Pipeline overview — each decision is pinned to model config, evidence, and audit trail.</figcaption>
+      </figure>
+
+      <div class="callout green">
+        <strong>Why GitLab:</strong> this role is exactly the intersection I have been building toward: legal process fluency, production technical systems, AI-enabled operations, and remote-first written collaboration.
+      </div>
+    </div>
+  </section>
+
   <section id="results">
-    <h2><span class="num">05</span>Results &amp; Engineering Quality</h2>
-    <p class="tagline">What shipped, how it performs, and how it's kept from breaking.</p>
+    <div class="container">
+      <div class="section-head">
+        <div class="num">07 / RESULTS</div>
+        <div>
+          <h2>Measured outputs, not vague AI claims.</h2>
+          <p class="tagline">Privilege review is the example domain; the transferable asset is the discipline of shipping defensible automation in a legal environment.</p>
+        </div>
+      </div>
 
-    <figure class="figure">
-      <img src="../one-pager.png" alt="CrossExamine.AI executive one-pager: 160 documents processed in 7 minutes at $0.50 total GPU cost, 2.7 seconds and $0.003 per document, with positioning and tiered triage overview." loading="lazy" />
-      <figcaption>Executive one-pager — measured run: <strong>160 docs, 7 min wall clock, $0.50 total GPU cost</strong> on Modal H100 (March 2026).</figcaption>
-    </figure>
+      <figure class="figure">
+        <img src="../one-pager.png" alt="CrossExamine one-pager with measured processing metrics and product positioning." loading="lazy" />
+        <figcaption>Measured run: 160 documents in 7 minutes at approximately $0.50 total GPU cost on Modal H100.</figcaption>
+      </figure>
 
-    <h3>Model performance</h3>
-
-    <table>
-      <thead><tr><th>Metric</th><th>Value</th><th>Why it matters</th></tr></thead>
-      <tbody>
-        <tr><td>Recall on privilege</td><td><strong>0.976</strong></td><td>The metric that matters — a missed privileged doc is the failure mode with real-world downside.</td></tr>
-        <tr><td>F1</td><td><strong>0.940</strong></td><td>Balanced against over-redaction.</td></tr>
-        <tr><td>Cross-domain transfer F1</td><td>0.494 → <strong>0.692</strong></td><td>After the 131K → 32K SAE migration. A new matter type now works out of the box with calibration, not retraining.</td></tr>
-      </tbody>
-    </table>
-
-    <h3>Operational footprint (measured, not projected)</h3>
-
-    <div class="metrics">
-      <div class="metric"><div class="n">1,300</div><div class="l">court-adjudicated docs</div></div>
-      <div class="metric"><div class="n">2.7 s</div><div class="l">per-document latency</div></div>
-      <div class="metric"><div class="n">$0.003</div><div class="l">GPU cost / document</div></div>
-      <div class="metric"><div class="n">4</div><div class="l">matter types validated</div></div>
-    </div>
-
-    <p style="font-size: 14px; color: var(--muted); margin-top: 14px;">
-      Last measured run: <strong style="color:var(--text)">160 documents, 7 minutes wall clock, $0.50 total GPU cost</strong> on Modal H100 (March 2026).
-      Feature extraction runs on Modal scale-to-zero H100s; the linear probe runs locally, which is why per-document cost is effectively just the GPU extraction cost.
-      Model config is pinned in <code>config.py</code>: Llama-3.1-8B-Instruct · Layer 23 MLP · 32,768-dim LlamaScope 8x SAE · 4K token context.
-      Ground-truth labels come from a tobacco-litigation corpus where a court actually adjudicated privilege — not a crowd-labeled benchmark.
-    </p>
-
-    <h3>Quality bar</h3>
-
-    <div class="pills">
-      <span class="pill"><code>ruff</code><span class="dim">lint</span></span>
-      <span class="pill"><code>mypy --strict</code><span class="dim">types</span></span>
-      <span class="pill"><code>tsc --noEmit</code><span class="dim">frontend</span></span>
-      <span class="pill"><code>pytest</code><span class="dim">2,256 tests</span></span>
-      <span class="pill"><code>Alembic</code><span class="dim">migration smoke harness</span></span>
-      <span class="pill"><code>GitHub Actions</code><span class="dim">path-filtered CI</span></span>
-      <span class="pill"><code>Sentry</code><span class="dim">errors</span></span>
-      <span class="pill"><code>WorkOS</code><span class="dim">SSO / SAML</span></span>
-      <span class="pill"><code>HMAC</code><span class="dim">signed audit trail</span></span>
-      <span class="pill"><code>structured logs</code><span class="dim">org / matter / request</span></span>
+      <table aria-label="Results summary">
+        <thead><tr><th>Signal</th><th>Value</th><th>Why Legal Ops should care</th></tr></thead>
+        <tbody>
+          <tr><td>Privilege recall</td><td><strong>97.6%</strong></td><td>Automation optimized around the failure mode legal teams actually fear: missing the protected document.</td></tr>
+          <tr><td>Platform surface</td><td><strong>82 endpoints</strong></td><td>More than a demo: identity, billing, matters, queues, evidence, audit, reporting, and export surfaces.</td></tr>
+          <tr><td>Testing</td><td><strong>2,256 tests</strong></td><td>Legal automation has to stay reliable under edge cases, tenant boundaries, and migration changes.</td></tr>
+          <tr><td>Build mode</td><td><strong>9 weeks solo</strong></td><td>Shows the initiative and AI-native execution cadence GitLab explicitly values.</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
-
-  <hr />
-
-  <!-- ---------------- AI-NATIVE ---------------- -->
-  <section id="ai-native">
-    <h2><span class="num">06</span>How this gets built in 9 weeks, solo</h2>
-    <p class="tagline">The delta isn't heroic hours — it's AI-native dev workflow as the default.</p>
-
-    <p>
-      GitLab's JD says team members are "expected to incorporate AI into their daily workflows to drive efficiency,
-      innovation, and impact." That's my default operating mode, not an add-on. Claude Code drafts scaffolding,
-      tests, schema migrations, type plumbing; I spend attention on the things that actually require judgment —
-      architectural choices, data quality, how the evidence cards should <em>feel</em> to a reviewer.
-      <strong>82 endpoints, 2,256 tests, 9 weeks, solo, with <code>mypy --strict</code> gating</strong> — that
-      cadence is how quality holds while one person covers the surface area.
-    </p>
-
-    <p style="font-size: 15px; color: var(--muted);">
-      The JD asks for someone who can translate legal requirements into practical systems. That's the actual work
-      on this page — not a job title I've held, but a product I shipped. Happy to walk through any of it on a call.
-    </p>
-  </section>
-
-  <hr />
-
-  <!-- ---------------- TRADEOFFS ---------------- -->
-  <section id="tradeoffs">
-    <h2><span class="num">07</span>Tradeoffs I'd revisit</h2>
-    <p class="tagline">The honest version — what I'd build differently at team scale.</p>
-
-    <ul>
-      <li><strong>Modal over AWS, for now.</strong> Right call solo; at team scale + compliance, I'd move extraction to SageMaker async or EKS+GPU. The HTTP boundary makes that migration boring.</li>
-      <li><strong>Synthetic data as a crutch.</strong> Pragmatic fix for 71% label error. Human-labeled gold sets per matter type dominate long-term — but only once the business picks matter types.</li>
-      <li><strong>Probe ensemble vs. end-to-end fine-tune.</strong> A fine-tuned LLM would beat the ensemble on raw F1. I chose the ensemble because interpretability was the product — revisitable once SAEs on frontier models mature.</li>
-      <li><strong>Single-cluster Postgres.</strong> Fine at current scale; multi-region tenants would want per-tenant DBs for data residency. Service layer is already tenant-scoped, so it's mostly ops.</li>
-    </ul>
-  </section>
-
 </main>
 
 <footer>
-  <div class="container">
+  <div class="container foot">
     <div>
-      <strong>Ben Ginsberg</strong> &mdash; San Diego, CA · Remote-first, async-native<br/>
-      Legal engineer / AI-native SWE. Python / TypeScript / ML / legal domain.<br/>
-      <a href="mailto:beginsber@gmail.com?subject=GitLab%20%E2%80%94%20Legal%20Engineer%20application">beginsber@gmail.com</a>
+      <strong>Ben Ginsberg</strong> — Legal Engineer / AI systems builder<br />
+      San Diego, CA · Remote-first · Python / TypeScript / SQL / legal operations<br />
+      <a href="mailto:beginsber@gmail.com?subject=GitLab%20Legal%20Engineer%20%2F%20CrossExamine%20case%20study">beginsber@gmail.com</a>
     </div>
     <div>
-      <a href="#problem">Problem</a> &middot;
-      <a href="#architecture">Architecture</a> &middot;
-      <a href="#ml">ML</a> &middot;
-      <a href="#interpretability">Interpretability</a> &middot;
-      <a href="#results">Results</a>
+      <a href="#fit">Fit</a> · <a href="#workflows">Workflows</a> · <a href="#ai">AI</a> · <a href="#data">Data</a> · <a href="#results">Results</a>
     </div>
   </div>
 </footer>
-
 </body>
 </html>
